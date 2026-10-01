@@ -69,13 +69,17 @@ function parseBody(body: unknown): DirectorPayload | null {
 function cleanSignals(beat: Beat, input: unknown): Record<string, SignalValue> {
   const source = input && typeof input === 'object' ? input as Record<string, unknown> : {};
   if (beat === 'c4') {
+    const errand = ['held', 'repeated', 'looked'].includes(String(source.errand)) ? String(source.errand) : 'unset';
     const route = ['levee', 'cane'].includes(String(source.route)) ? String(source.route) : 'unset';
+    const relic = ['photograph', 'bell', 'fig'].includes(String(source.relic)) ? String(source.relic) : 'unset';
     const eyes = ['mouth', 'window', 'closed'].includes(String(source.eyes)) ? String(source.eyes) : 'unset';
     const thank = ['swallowed', 'half', 'asked'].includes(String(source.thank)) ? String(source.thank) : 'unset';
-    return { route, eyes, thank, answeredSmell: source.answeredSmell === true };
+    return { errand, route, relic, eyes, thank, answeredSmell: source.answeredSmell === true };
   }
+  const answer = ['words', 'hands', 'cup'].includes(String(source.answer)) ? String(source.answer) : 'unset';
   const first = ['mama', 'children', 'row'].includes(String(source.first)) ? String(source.first) : 'unset';
-  return { first, readChapterFour: source.readChapterFour === true };
+  const overheard = ['dream', 'birds', 'man'].includes(String(source.overheard)) ? String(source.overheard) : 'unset';
+  return { answer, first, overheard, readChapterFour: source.readChapterFour === true };
 }
 
 function remember(cacheKey: string, thread: string) {

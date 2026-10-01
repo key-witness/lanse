@@ -193,6 +193,30 @@ SOUND (recommended, not implemented; all beds below -30dB, no music)
   .listening-note{color:var(--rule);font-size:.68em;line-height:1.5;letter-spacing:.06em;max-width:28em}
   .director-slot{display:none}
 
+  .term{
+    appearance:none;background:none;border:0;border-bottom:1px dotted var(--lamp);
+    color:inherit;cursor:help;font:inherit;line-height:inherit;padding:0 .02em;
+  }
+  .term:hover,.term:focus-visible{color:var(--lamp);outline:none;border-bottom-style:solid}
+  .glossary{
+    color:var(--ink);background:#1c1913;border:1px solid var(--rule);border-bottom:0;
+    border-radius:1rem 1rem 0 0;width:100%;max-width:none;max-height:72vh;
+    margin:auto 0 0;padding:1.4rem 1.4rem calc(1.4rem + env(safe-area-inset-bottom));
+    box-shadow:0 -1rem 3rem rgba(0,0,0,.42);transform-origin:bottom;
+  }
+  .glossary[open]{animation:rise .22s ease-out}
+  .glossary::backdrop{background:rgba(8,7,5,.72);backdrop-filter:blur(2px)}
+  .glossary-kicker{color:var(--moss);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase}
+  .glossary-title{font-size:1.25rem;font-weight:normal;margin:.28rem 0 .7rem}
+  .glossary-body{color:var(--paper);font-size:.95rem;line-height:1.62;margin:0}
+  .glossary-close{
+    background:none;border:0;color:var(--lamp);cursor:pointer;font:inherit;font-style:italic;
+    margin-top:1.2rem;padding:.25rem 0;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(1.2rem)}to{opacity:1;transform:none}}
+  @media (min-width:38rem){.glossary{max-width:30rem;margin:auto auto 1.5rem;border-bottom:1px solid var(--rule);border-radius:1rem}}
+  @media (prefers-reduced-motion:reduce){.glossary[open]{animation:none}}
+
   .return{
     display:inline-block;margin-top:3.5em;font-style:italic;color:var(--lamp);
     background:none;border:none;font:inherit;cursor:pointer;padding:0;
@@ -230,14 +254,14 @@ function save(){try{localStorage.setItem(SAVEKEY,JSON.stringify(S))}catch(e){}}
 
 const DIRECTOR_LINES={
   c4:{
-    house:`A house keeps count in its own way. Boards hold footsteps, curtains hold smoke, and somewhere under both, a child keeps carrying what was handed to him.`,
-    water:`All these years later, I think about the things that cross water and the things that stop at its edge. A body learns that line before the mind gives it a name.`,
-    voice:`What stayed with me was the unsaid part, the mouth working and the room hearing. Some words do their work below the place where sound begins.`
+    house:`The floorboards knew where Cletha lay. The curtains kept vinegar till winter. A house will point to the hurt if you know which of its old smells has come awake.`,
+    water:`Prayer stopped at running water. Bayou law did not. At Onézime’s the mud kept its line and showed no mark where anything had crossed.`,
+    voice:`The whisper stayed below hearing. Years later, tying any common knot, the same measure returned in the teeth before the mouth could name it.`
   },
   c11:{
-    kin:`The Anse measures kin by the work your hands remember. A brush, a match, a pot with a bad lid. The blood comes after, if it comes into the telling at all.`,
-    record:`Names last by being said, and the unnamed last by the work left around them. That morning both kinds of keeping used the same whitewash.`,
-    threshold:`There is always a far side to the water and somebody who knows where crossing changes a thing. I had spent years away and still my hands knew which bank they belonged to.`
+    kin:`Hands learn a family before the head does: thin lime on the knuckles, a damp match, the bad lid rattling over rice. Mine had forgotten nothing in Houston.`,
+    record:`The named stones and the stones with nothing cut in them took the same brush. By noon the lime had dried over both, bright enough to trouble the eye.`,
+    threshold:`Houston lay five hours behind me. The far bank at Onézime’s lay nearer than the table, and my hands still knew which side to take.`
   }
 };
 const directorPending={};
@@ -248,10 +272,13 @@ function directorLine(beat){
 }
 function directorSignals(beat){
   if(beat==='c4')return {
-    route:S.flags.route||'unset',eyes:S.flags.eyes||'unset',thank:S.flags.thank||'unset',
-    answeredSmell:Boolean((S.answers.smell||'').trim())
+    errand:S.flags.errand||'unset',route:S.flags.route||'unset',relic:S.flags.relic||'unset',
+    eyes:S.flags.eyes||'unset',thank:S.flags.thank||'unset',answeredSmell:Boolean((S.answers.smell||'').trim())
   };
-  return {first:S.flags.first||'unset',readChapterFour:Boolean(S.done.c4)};
+  return {
+    answer:S.flags.answer||'unset',first:S.flags.first||'unset',overheard:S.flags.overheard||'unset',
+    readChapterFour:Boolean(S.done.c4)
+  };
 }
 function addDirectorSlot(beat,delay){
   const line=directorLine(beat);
@@ -290,6 +317,37 @@ async function cueDirector(beat){
   }
 }
 
+const GLOSSARY={
+  cushcush:{title:'cush-cush',body:'A Louisiana cornmeal dish browned in a pot, often eaten with milk or cane syrup. Here it is ordinary kitchen food, memorable because Mama lets it scorch.'},
+  cordon:{title:'cordon',body:'A prayer-knotted string tied near the hurt. In this telling it must stay off the ground and be burned after nine days.'},
+  toussaint:{title:'Toussaint',body:'All Saints’ Day, November 1. In many Louisiana Catholic communities, families clean and whitewash graves, gather, light candles, and tend the dead together.'},
+  cheniere:{title:'chénière',body:'A natural ridge of firmer, higher ground in coastal Louisiana. Oaks, settlements, and cemeteries often stand above the wet country on one.'},
+  whitewash:{title:'whitewash',body:'A thin lime-and-water wash used on masonry. At St. Ambroise it is renewed before All Saints and cures paler over the following days.'},
+  traiteuse:{title:'traiteuse',body:'A woman who treats illness through inherited prayer, touch, and household practice in Louisiana Creole and Cajun traditions. The treatment must be asked for.'},
+  boudin:{title:'boudin',body:'A Louisiana fresh sausage commonly made with pork, rice, liver, seasoning, and green onion.'},
+  poules:{title:'poules d’eau',body:'Literally “water hens”: moorhens or gallinules, dark marsh birds whose numbers and movements can tell people what the water is doing.'},
+  boucherie:{title:'boucherie',body:'A communal hog-butchering and cooking day, with many hands turning the whole animal into food.'},
+  pirogue:{title:'pirogue',body:'A narrow, shallow-draft boat made for bayous and marsh water.'}
+};
+let glossaryReturnFocus=null;
+function buildGlossary(){
+  const dialog=el('dialog','glossary');dialog.id='glossary';
+  dialog.innerHTML='<div class="glossary-kicker">a word from the Anse</div><h2 class="glossary-title"></h2><p class="glossary-body"></p><button class="glossary-close">put it away</button>';
+  dialog.querySelector('.glossary-close').onclick=()=>dialog.close();
+  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+  dialog.addEventListener('close',()=>{if(glossaryReturnFocus)glossaryReturnFocus.focus();glossaryReturnFocus=null});
+  document.body.appendChild(dialog);
+  page().addEventListener('click',event=>{
+    const trigger=event.target.closest('[data-term]');
+    if(!trigger)return;
+    const entry=GLOSSARY[trigger.dataset.term];if(!entry)return;
+    glossaryReturnFocus=trigger;
+    dialog.querySelector('.glossary-title').textContent=entry.title;
+    dialog.querySelector('.glossary-body').textContent=entry.body;
+    dialog.showModal();
+  });
+}
+
 const page=()=>document.getElementById('page');
 
 /* weave stored answers back into prose: [[key||what the text says if silence]] */
@@ -317,7 +375,8 @@ function addPara(node,delay){
 /* render one passage, appended beneath everything already read */
 function render(id){
   const psg=DATA[id];
-  if(!psg){console.warn('missing passage',id);return}
+  if(!psg){console.warn('missing passage',id);return null}
+  const startCount=page().children.length;
   S.at=id;save();
   fadeIndex=0;
 
@@ -347,14 +406,14 @@ function render(id){
       const b=el('button','choice',fill(c.t));
       b.onclick=()=>{
         if(c.set)Object.assign(S.flags,c.set);
-        const directorBeat=c.set&&c.set.thank?'c4':(c.set&&c.set.first?'c11':null);
+        const directorBeat=c.set&&c.set.thank?'c4':(c.set&&c.set.overheard?'c11':null);
         /* the chosen line remains part of the book */
         const kept=el('div','chosen',fill(c.t));
         box.replaceWith(kept);
         save();
         if(directorBeat)cueDirector(directorBeat);
-        render(c.go);
-        settle();
+        const next=render(c.go);
+        settle(next);
       };
       box.appendChild(b);
     });
@@ -377,8 +436,8 @@ function render(id){
       const kept=el('div','chosen',said?('&ldquo;'+escapeHtml(said)+'&rdquo;'):(psg.input.silent||'You kept it to yourself.'));
       box.replaceWith(kept);
       save();
-      render(psg.input.go);
-      settle();
+      const next=render(psg.input.go);
+      settle(next);
     };
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
     say.onclick=go;
@@ -389,7 +448,7 @@ function render(id){
   else if(psg.goon){
     const b=el('button','choice fade',psg.goon.t||'go on');
     b.style.animationDelay=(fadeIndex*0.55)+'s';
-    b.onclick=()=>{b.remove();render(psg.goon.go);settle()};
+    b.onclick=()=>{b.remove();const next=render(psg.goon.go);settle(next)};
     page().appendChild(b);
   }
   else if(psg.end){
@@ -400,19 +459,17 @@ function render(id){
     b.onclick=()=>shelf();
     page().appendChild(b);
   }
+  return page().children[startCount]||null;
 }
 
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 /* ease the new text into view without yanking the reader */
-function settle(){
-  const kids=page().children;
-  if(!kids.length)return;
-  let target=null;
-  for(let i=kids.length-1;i>=0;i--){
-    if(kids[i].classList.contains('chosen')){target=kids[i];break}
-  }
-  (target||kids[kids.length-1]).scrollIntoView({behavior:'smooth',block:'start'});
+function settle(target){
+  if(!target)return;
+  const cushion=Math.max(24,Math.min(96,window.innerHeight*0.12));
+  const top=target.getBoundingClientRect().top+window.scrollY-cushion;
+  window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
 }
 
 /* ===== the shelf ===== */
@@ -467,7 +524,7 @@ Object.assign(DATA, {
 'c4-1':{
   head:{num:'Chapter Four',name:'The Asking',year:'L\u2019ANSE AUX CH\u00CANES \u00B7 1981'},
   p:[
-`The year my sister Cletha took the sun, we were living in the third house from the turn at L'Anse aux Ch\u00EAnes, the one with the cistern that leaned. I was eleven. I know it was 1981 because that was the summer Mr. Verbin got his new engine, and the whole Anse learned the sound of it before we learned his reasons, a fat sound, like a man clearing his throat over and over and never getting to what he meant to say.`,
+`The year my sister Cletha took the sun, we were living in the third house from the turn at L'Anse aux Ch\u00EAnes, the one with the cistern that leaned. I was eleven. I know it was 1981 because that was the summer Mr. Verbin got his new engine. It announced him up and down the Anse, one thick cough after another, while his reasons stayed his.`,
 `It was August and the rain had quit us. Mama had Cletha out in the butterbeans by seven because by nine the rows held the heat like a pot holds it, and Cletha was eight and hardheaded and took her hat off to fan a dog with it, and left it off. She came in white around the mouth around ten thirty, walking careful, like the floor was somebody else's floor. Mama took one look and had her down on the boards where the house stays cool, wet rag going, vinegar, talking low the whole time, and the talking low was how I knew.`
   ],
   goon:{t:'go on',go:'c4-2'}
@@ -475,7 +532,7 @@ Object.assign(DATA, {
 
 'c4-2':{
   p:[
-`Everybody in my family remembers that morning by a smell. Mama says the vinegar. My cousin Ti-Jean swears the cush-cush was scorching on the stove and nobody moved to save it, which tells you something, because Mama never in her life let cush-cush scorch. Me, I say the butterbeans, that green smell a hill of them makes when they sit snapped in the colander and the day gets on top of them.`,
+`Everybody in my family remembers that morning by a smell. Mama says the vinegar. My cousin Ti-Jean swears the <button class="term" data-term="cushcush">cush-cush</button> scorched on the stove and nobody moved to save it. Mama had never let a grain of it take the scorch before that day. Me, I say the butterbeans, that green smell a hill of them makes when they sit snapped in the colander and the day gets on top of them.`,
 `You know a kitchen with trouble in it. Everybody does, one kitchen at least. What did yours smell like.`
   ],
   input:{key:'smell',ph:'',label:'the smell of a kitchen with trouble in it',say:'say it',go:'c4-3',
@@ -484,12 +541,16 @@ Object.assign(DATA, {
 
 'c4-3':{
   p:[
-`That one. That one exactly. It gets in the curtains, a smell like that. Houses keep them the way the road keeps the syrup mill.`,
-`Mama didn't send for the doctor in Bon Secours, and I want to be fair to her about that, because people hear it wrong now. Doctor Broome was thirty minutes and thirty dollars away and it was Tuesday and the truck had no gas till Friday, and besides, the sun was a thing Miss Ophelia treated, everybody's sun, all my life. You went to Broome for what Broome was for. You went to Miss Ophelia for what she was for. Nobody stood in the yard weighing it. It weighed itself.`,
+`That one. Curtains take a smell like that and give it back years later. The road does the same with the syrup mill.`,
+`Now folks ask why Mama did not send for Doctor Broome in Bon Secours. That question belongs to now. Broome was thirty minutes and thirty dollars away, it was Tuesday, and the truck had no gas till Friday. The sun was a thing Miss Ophelia treated, everybody’s sun, all my life. Nobody held council in the yard.`,
 `Mama wrung the rag out and looked at me. She said, go by Miss Ophelia. Walk in the shade what shade there is, and don't run the whole way, you'll take the sun too, and then who I got. And listen, Alcide. You ask her yourself. She can't come at it uninvited. Say Cletha asking through me. Say it just so.`,
 `I said it back to her twice, standing on one foot in the doorway, and then I went.`
   ],
-  goon:{t:'go on',go:'c4-4'}
+  choices:[
+    {t:'I kept Mama’s words whole behind my teeth.',go:'c4-4',set:{errand:'held'}},
+    {t:'I said them under my breath until they matched my walking.',go:'c4-4',set:{errand:'repeated'}},
+    {t:'I looked once more at Cletha, then left before fear made me run.',go:'c4-4',set:{errand:'looked'}}
+  ]
 },
 
 'c4-4':{
@@ -504,7 +565,7 @@ Object.assign(DATA, {
 
 'c4-5a':{
   p:[
-`The levee road handed me along the way it hands everybody along. Past the Fontenot place, where the dog knows your legs. Past the landing, where Mr. Verbin's new engine sat up on sawhorses with its cover off, drowned. It had gone under at the landing two days before, a whole story I only half knew, and three men stood around it in the heat the way men stand around a thing they can fix, which is the same way they stand around a thing they can't. Mr. Verbin had the plugs out and was turning it over slow by hand, and the water came up out of it in little coughs, and one of the men said, she'll talk again, and nobody agreed and nobody argued.`,
+`The levee road handed me along the way it hands everybody along. Past the Fontenot place, where the dog knows your legs. Past the landing, where Mr. Verbin's new engine sat up on sawhorses with its cover off, drowned. It had gone under at the landing two days before, a whole story I only half knew, and three men stood around it bareheaded, each holding one useless tool. Mr. Verbin had the plugs out and was turning it over slow by hand, and the water came up out of it in little coughs, and one of the men said, she'll talk again, and nobody agreed and nobody argued.`,
 `Past that, the water bends back on itself at the place they call On\u00E9zime's. I couldn't tell you when anybody last said On\u00E9zime's whole name in my hearing. The water there turns and holds still and keeps a green on it different from the rest of the bayou, and nobody fishes it. Nobody will tell you that in words. You just notice, over the years, that no line ever lands there, that boats take the far side without the wheel seeming to move, and by the time you're grown, your own hands do it too, and you couldn't say when they learned.`,
 `I kept along in the dove-colored heat with the message in my mouth, saying it to myself. Cletha asking through me. Cletha asking through me.`
   ],
@@ -513,7 +574,7 @@ Object.assign(DATA, {
 
 'c4-5b':{
   p:[
-`The cane took me in the way it takes children in, all at once, like water closing. The heat in the rows was a green heat, thick, and the leaves talked over my head about their own business. We had a game in there, all of us Anse children, where you call a name into the rows and wait, and the rule was you never called your own. I didn't play it that day. I want that understood. I was carrying a message and I walked.`,
+`The cane shut behind me before the ditch water quit shining at my back. The heat in the rows was a green heat, thick, and the leaves talked over my head about their own business. We had a game in there, all of us Anse children, where you call a name into the rows and wait, and the rule was you never called your own. I didn't play it that day. I want that understood. I was carrying a message and I walked.`,
 `Midway through, the rows opened where the old Thibodeaux place stood. A chimney, alone, black gone gray, and the fig trees around it gone wild, big as barns, bees in them like a sound the heat itself was making. The figs went soft on the ground every August, that wine smell, sweet and gone over, and nobody picked them. Free figs, whole trees of them, and no child of the Anse ever took one, and no mother ever had to say don't. That was all I knew about the Thibodeaux place at eleven years old. The figs were free and nobody took them.`,
 `I came out the far side with leaf cuts on my forearms, saying the message to myself. Cletha asking through me. Cletha asking through me.`
   ],
@@ -524,7 +585,7 @@ Object.assign(DATA, {
   p:[
 `Miss Ophelia Broussard lived where the road gave up being a road, under a chinaball tree that made a shade so blue you could drink it. Two dogs came off the porch to meet me, and they didn't bark, because Anse children were a smell they were raised on, and they walked me in like it was their idea.`,
 `Miss \u00C9nola was on the porch with her, the two of them shelling peas into one dishpan between them, and I stopped at the steps the way you stopped at those steps.`,
-`They were talking, and I want to put down what they were talking about, because it was the ordinary kind, and I have come to believe the ordinary kind is the kind that holds. Miss \u00C9nola had dreamed her teeth again, all of them loose in her mouth like corn in a cup, and she was tired of it, she said, tired of hauling them teeth through her sleep, and Miss Ophelia shelled on and said, teeth is talk, somebody's talking on you, and \u00C9nola said, mais let them talk then, I ain't got the water to waste on it, and they both laughed at something in that I couldn't see the shape of.`,
+`Miss \u00C9nola had dreamed her teeth again, all of them loose in her mouth like corn in a cup, and she was tired of it, she said, tired of hauling them teeth through her sleep, and Miss Ophelia shelled on and said, teeth is talk, somebody's talking on you, and \u00C9nola said, mais let them talk then, I ain't got the water to waste on it, and they both laughed at something in that I couldn't see the shape of.`,
 `Then Miss Ophelia said, without looking up, whose engine was that passing four o'clock this morning. And Miss \u00C9nola said, that was nobody. And they let it lie there between them, in the pan with the peas, and went on shelling.`
   ],
   goon:{t:'go on',go:'c4-7'}
@@ -532,7 +593,7 @@ Object.assign(DATA, {
 
 'c4-7':{
   p:[
-`Miss Ophelia looked at me over the pan. She had eyes with a color to them like tea against the light. She didn't ask me anything. She couldn't. That was the whole of it, that was the door I had to open myself, and Mama had put the key in my mouth before I left.`,
+`Miss Ophelia looked at me over the pan. She had eyes with a color to them like tea against the light. She did not ask. She could not. Mama’s words sat whole under my tongue, and the first speaking belonged to me.`,
 `I said, Miss Ophelia, Cletha asking through me. She took the sun this morning in the beans.`,
 `She set the pan off her lap. She said, she this side the water. And I said yes ma'am, home on the floor where it's cool. She said, good. It don't cross running water, and I don't carry it over, and that's old, that's older than me. \u00C9nola, watch my peas.`,
 `Miss \u00C9nola said, them peas grown, they don't need watching, and took the pan anyway.`
@@ -542,7 +603,7 @@ Object.assign(DATA, {
 
 'c4-8':{
   p:[
-`The front room was dim and smelled like camphor and coffee and candle smoke, all of it settled deep in the boards, years of it, a smell with floors underneath floors. She had a shelf on the wall by the window, and while she went to the drawer for her thread I stood where I was put and read that shelf the way you read anything at eleven, which is completely, without meaning to.`,
+`The front room was dim and smelled like camphor and coffee and candle smoke, all of it settled deep in the boards, years of it, a smell with floors underneath floors. She had a shelf on the wall by the window. While she went to the drawer for her thread, I took it item by item, as children do when told to stand still.`,
 {doc:
 `on the shelf, as I hold it still:
 
@@ -563,14 +624,23 @@ Object.assign(DATA, {
   and a fig, a fresh one,
      there every day of the year,
      and nobody eats it`},
-`I didn't ask about a thing on it. You didn't. Not because anybody forbid you. Some rooms carry their own quiet the way a church does, and you can be eleven and barefoot and still know you're in one.`
+`I did not ask about a thing on it. My toes stayed curled against the cool boards and my hands stayed where she could see them.`
   ],
-  goon:{t:'go on',go:'c4-9'}
+  choices:[
+    {t:'My eyes kept returning to the photograph with the hands pricked out.',go:'c4-9',set:{relic:'photograph'}},
+    {t:'I listened for the bell that had no clapper.',go:'c4-9',set:{relic:'bell'}},
+    {t:'I watched the fresh fig and wondered who replaced it.',go:'c4-9',set:{relic:'fig'}}
+  ]
 },
 
 'c4-9':{
   p:[
-`She came back with a length of white string and sat by the window and went away from me while I watched. That's the best I can put it. She was there in the chair, and she was away. Her lips moved and nothing came up to the surface of her that I could hear, the words going along underneath like fish under a dock, and her hands worked the string while she went, a knot, and a going, and a knot.`,
+s=>({
+      photograph:`When she came back with the white string, I looked once at the photograph. Her thumb covered the pinholes in the men’s hands as she passed.`,
+      bell:`When she came back with the white string, her skirt touched the little bell. It rocked without a sound.`,
+      fig:`When she came back with the white string, the fig had rolled against St. Expedite’s foot. I never saw her touch it.`
+    }[s.flags.relic]||null),
+`She sat by the window and receded without moving. Chair, dress, hands stayed before me; the woman herself went someplace the room could not follow. Her lips moved below hearing, and her hands worked the <button class="term" data-term="cordon">cordon</button>, a knot, and a going, and a knot.`,
 `Nine knots. I counted without deciding to.`
   ],
   choices:[
@@ -613,7 +683,7 @@ Object.assign(DATA, {
     }[s.flags.thank]||`I said, yes ma'am.`),
 `At the door she stopped me with one more thing, said easy, over her shoulder, while she picked the pan of peas back off \u00C9nola's lap.`,
 `She said, that string's the same one my uncle Placide handed me, I mean the same prayer, the string's just string. He gave it to me across a fence the year before they took him, nineteen and forty-one, because a prayer dies with you if you hold it, and he knew his year when it came in the gate. I had it for burns first. That was the year the Thibodeaux store went, so I had my practicing early, all them hands. Men will try a door long past trying. Anyhow. It's sun and burns both, that prayer, all one heat to God. Watch the step going down, it's loose on the left.`,
-`And she was shelling again before I was off the porch, and \u00C9nola was saying something about the water being low at the landing, and the two of them went back down into the day like two ducks going under, easy as that, and I walked home with the wax paper held out level in front of me like a full cup the whole way, and that is the truest picture of my childhood I own. A boy on a gravel road, carrying something level.`
+`And she was shelling again before I was off the porch, and \u00C9nola was saying something about the water being low at the landing, and the two of them went back down into the day like two ducks going under, easy as that, and all the road home I held the wax paper level in front of me, both hands under it. Ask me now what childhood was and I see a boy on gravel carrying something that weighed almost nothing.`
   ],
   goon:{t:'go on',go:'c4-13'}
 },
@@ -622,13 +692,22 @@ Object.assign(DATA, {
   p:[
 `Mama tied it on Cletha's wrist where the skin burned, and Cletha slept all afternoon on the floor with her arm laid out beside her like it belonged to the house now. Toward evening she took broth. In the night I woke to a sound I'd quit believing in, which was thunder, way off, walking the parish line, and Thursday, like the woman said, it rained. The first cool air came through the screen about four in the morning and went over all of us in our beds like a hand checking foreheads, and Cletha's fever went out with it, and the frogs set up in the ditch, that whole nation of them, singing the water back.`,
 `Next morning Mama dressed a hen and put it in a flour sack with a dozen figs off our own tree, and sent me back down the road. Set it on the step, she told me. Don't knock. And whatever you do, don't say nothing to nobody about it. It goes on the step and you come home.`,
-`I set it on the step. The dogs walked me in and walked me out. The porch was empty and the pea pan sat on the boards half full, and I did not knock, and no one ever spoke of the hen again in this world, and that is how you thank a woman you can't thank.`
+`The dogs walked me in. The porch was empty and the pea pan sat on the boards half full.`
   ],
-  goon:{t:'go on',go:'c4-14'}
+  choices:[
+    {t:'I set the sack down and backed away from it.',go:'c4-14',set:{gift:'backed'}},
+    {t:'I kept one hand on the doorframe for a breath, then left.',go:'c4-14',set:{gift:'doorframe'}},
+    {t:'I watched the dogs smell the sack and turn their heads.',go:'c4-14',set:{gift:'dogs'}}
+  ]
 },
 
 'c4-14':{
   p:[
+s=>({
+      backed:`By supper the sack was gone. Nobody named the hen again.`,
+      doorframe:`The porch board held the heat through my palm. By supper the sack was gone.`,
+      dogs:`The dogs knew better than I did what belonged on that porch. By supper the sack was gone.`
+    }[s.flags.gift]||null),
 `Nine days on, Papa struck a match from the box on our own stove shelf and we burned the string in the bare spot in the yard, all four of us standing there for no longer than it takes, and nobody said anything over it, and it went up quick like string does, and Mama swept the little ash into the ground with the side of her shoe, and we ate supper.`,
     {director:'c4'},
     s=>({
@@ -636,8 +715,8 @@ Object.assign(DATA, {
       window:`I'm past fifty now. Some evenings a plain yard, anybody's yard, a hen in it or not, will stand up in the heat and look back at me like it knows it's inside something. I let it look. I don't ask inside of what. I learned the not asking in a front room in 1981 and it has held me the way a floor holds.`,
       closed:`I'm past fifty now, and in a strange house, any strange house, I'll close my eyes before sleep and let the place come up around me, the clocks and the compressors and the breathing, till it all runs together into one thing going along underneath, and I couldn't tell you the day I started calling that one thing praying, but I call it that.`
     }[s.flags.eyes]||`I'm past fifty now, and I still catch my mouth moving over knots, saying I couldn't tell you what.`),
-`Cletha lives in Beaumont. She sells insurance, she sings in the choir, she wears bracelets, always has, all up one arm. We have never once talked about it. There is plenty we never talk about, and I used to think that was a failing in us, and now I know it is most of what a family is, the shared things kept shut, carried level.`,
-`When I want that whole summer back at once I don't reach for the rain or the string or Miss Ophelia's cool hands. I reach for the kitchen. The vinegar and the beans and the cush-cush going, and under all of it, [[smell||the one you kept to yourself]], and Cletha on the cool boards breathing, and Mama's voice gone low, talking to the fever like it was somebody raised wrong but known to the family, somebody you could still, with patience, walk back out the gate.`
+`Cletha lives in Beaumont. She sells insurance, she sings in the choir, she wears bracelets, always has, all up one arm. We have never once talked about it. When she pushes the bracelets up, they stop at the old place on her wrist. Neither of us looks there long. A family can keep a thing forty years without ever setting it on the table.`,
+`That summer comes back through the kitchen first. The vinegar and the beans and the cush-cush going, and under all of it, [[smell||the one you kept to yourself]], and Cletha on the cool boards breathing, and Mama's voice gone low, talking to the fever like it was somebody raised wrong but known to the family, somebody you could still, with patience, walk back out the gate.`
   ],
   end:'c4'
 }
@@ -651,26 +730,35 @@ Object.assign(DATA, {
 'c11-1':{
   head:{num:'Chapter Eleven',name:'Toussaint',year:'L\u2019ANSE AUX CH\u00CANES \u00B7 ALL SAINTS \u00B7 1993'},
   p:[
-`You want to come into the Anse right, you come in before day on the first of November. I have come in every wrong way there is over the years, two in the afternoon, nine at night, Christmas, drunk once, and I can report that before day on Toussaint is the door the place leaves unlocked.`,
-`I drove from Houston with a thermos and the radio, and the radio gave out at the parish line like it always does, like there's a fence for it, and after that it was just the tires and the dark thinning out. I turned off the blacktop where the road smells like the syrup mill. The mill has been gone thirty years. Burned, sold, hauled off, I've heard it every way. But the road holds the smell the way a jar holds figs, and I turned where the sweetness started, same as my mother turned, same as her mother, and if you want to call that the smell remembering or you want to call it me remembering, go ahead and choose. On that road there's no difference, and I quit apologizing for that the year I quit apologizing generally.`
+`Come before day on <button class="term" data-term="toussaint">Toussaint</button> if you want the Anse to know you before it sees you. I have come in every wrong way there is, two in the afternoon, nine at night, Christmas, drunk once. Before day on the first of November is the door the place leaves unlocked.`,
+`I drove from Houston with a thermos and the radio, and the radio gave out at the parish line like it always does, like there's a fence for it, and after that it was just the tires and the dark thinning out. I turned off the blacktop where the road smells like the syrup mill. The mill has been gone thirty years. Burned, sold, hauled off, I've heard it every way. At the sweetness I turned, same as my mother, same as hers. Whether the road remembered us was a city question. The city was back at the parish line with the radio.`
   ],
   goon:{t:'go on',go:'c11-2'}
 },
 
 'c11-2':{
   p:[
-`Tante Velma had the light on in the kitchen and coffee gone half down the pot, which is her way of saying I told you so to nobody. She is my mother's last sister. She held my face in her two hands in the doorway, read it like a letter, didn't say what was in the letter, and fed me.`,
+`Tante Velma had the light on in the kitchen and coffee gone half down the pot, which is her way of saying I told you so to nobody. She is my mother's last sister. She put both thumbs under my cheekbones and turned my face once toward the kitchen light. Then she fed me.`,
 `We talked the way we talk. Houston. The drive. Her knees. A man named Nolan Simien who has been fixing her pump since June, and June was five months ago, and the pump works fine, which we both let sit there sweetening the coffee. They got frogs in Houston, she asked me, and I said they got frogs, and she said, mais, they ain't ours, and that was the truth and the end of it.`,
 `Then she said, looking in her cup, your mama's slab wants two coats this year. The east face specially. It took the weather.`,
-`And underneath that she said everything else. You hear the underneath or you don't. I was forty-six years old that morning and I had finally lived long enough to hear it, and I said, I brought old clothes, and underneath that I answered her.`
+`The east face specially, she said again. Her cup stayed between both hands.`
   ],
-  goon:{t:'go on',go:'c11-3'}
+  choices:[
+    {t:'I said, I brought old clothes.',go:'c11-3',set:{answer:'words'}},
+    {t:'I put both hands flat on her table.',go:'c11-3',set:{answer:'hands'}},
+    {t:'I finished the coffee and held out my cup.',go:'c11-3',set:{answer:'cup'}}
+  ]
 },
 
 'c11-3':{
   p:[
-`St. Ambroise sits up on the ch\u00E9ni\u00E8re, the oak ridge, the only ground around here with the sense to stay dry. The dead of the Anse have always kept the high ground and the living have always let them, and if you want the whole philosophy of this place, there it is, you can have it for free.`,
-`By eight o'clock the cemetery was half full of the living. Somebody's truck gate down and the drums on it. Children carrying brushes like flags. The whitewash was going in the blue drum by the fence, where it goes, and I will put down how it's made, because I have come to understand nobody writes these things down until the year after the last person who knew.`,
+    s=>({
+      words:`I brought old clothes, I said. Velma looked at my good shoes and let that answer pass.`,
+      hands:`My hands on her table were my mother’s hands for one second. Velma saw it and looked into her cup.`,
+      cup:`She filled the cup without asking. The second cup was the answer she wanted.`
+    }[s.flags.answer]||null),
+`St. Ambroise sits up on the <button class="term" data-term="cheniere">ch\u00E9ni\u00E8re</button>, the oak ridge, the only ground around here with sense enough to stay dry. The dead got the ridge. The living kept the wet ground. That arrangement has outlasted every promise made at the courthouse.`,
+`By eight o'clock the cemetery was half full of the living. Somebody's truck gate down and the drums on it. Children carrying brushes like flags. The <button class="term" data-term="whitewash">whitewash</button> was going in the blue drum by the fence, where it goes. I put down the making because the paddle under the church is older than anybody who remembers who shaped it.`,
 {doc:
 `whitewash, the way it is done at St. Ambroise:
 
@@ -687,14 +775,14 @@ Object.assign(DATA, {
   two coats on the east faces, one on the west.
   children do the low slabs.
   you don't wash a name you can't say out loud.`},
-`That last one nobody ever explained to me and I have never needed it explained. Some rules come up out of the lime.`
+`Nobody explained that last rule. Lime, names, and mouths had their work, and the brush went where it was told.`
   ],
   goon:{t:'go on',go:'c11-4'}
 },
 
 'c11-4':{
   p:[
-`I walked the rows once before I started, the way you walk a room of sleeping people, and the names went by me like faces at a dance. I'll set some of them down here. Not all. A cemetery is a book somebody else is still writing and you don't quote the whole of it.`,
+`I walked the rows once before I started. I will set down some names. The rest belong to the people who came carrying brushes.`,
 {doc:
 `ST. AMBROISE \u00B7 the rows \u00B7 as walked
 
@@ -719,7 +807,7 @@ Object.assign(DATA, {
      she asked that the stone not say
      what she was, and so it says
      GONE TO ASK`},
-`I stood in front of that last one a while. Gone to ask. The old people say the treater only ever asks, and Somebody Else answers, and I thought, there is a woman who wrote her own theology in three words and paid the mason for it, and I never met her but to wave, and I felt the lack of her like weather.`
+`I stood in front of that last one a while. Gone to ask. The old people say the <button class="term" data-term="traiteuse">traiteuse</button> only asks and Somebody Else answers. GONE TO ASK. Three words, paid for by the letter. The stonecutter could not have known how exact they were.`
   ],
   goon:{t:'go on',go:'c11-5'}
 },
@@ -737,9 +825,9 @@ Object.assign(DATA, {
 
 'c11-6a':{
   p:[
-`The east face had taken the weather like Velma said, gray coming up through last year's white the way a worry comes up through a face. I laid the first coat on slow. Whitewash is not paint, it goes on thin as milk and you have to trust it, it cures white over days, it whitens after you've gone home, which the old people find no irony in whatsoever.`,
+`The east face had taken the weather like Velma said, gray coming up through last year's white the way a worry comes up through a face. I laid the first coat on slow. Whitewash goes on thin as milk. By the third day it has whitened itself, after the brushes and people are gone.`,
 `Her name came up wet and dark under the brush, and I did what everybody does, I said it. Out loud, low. You don't wash a name you can't say. And I found I could say it, that was the report the morning wanted out of me, and the brush went on ahead of my hand like it had the rest.`,
-`Around me the whole cemetery was saying names, a syllable here, a whole one there, under the talk and the drums and somebody's radio playing low out of respect and zydeco out of honesty. If you stood still in the middle of it, and I did, one moment, bucket hanging, you could hear the Anse reading its own book aloud to itself, softly, the way you read to somebody sick.`
+`Around me the whole cemetery was saying names, a syllable here, a whole one there, under the talk and the drums and somebody's radio playing low out of respect and zydeco out of honesty. If you stood still in the middle of it, and I did, one moment, bucket hanging, you heard MÉTOYER from the far row, then DONATTO near the oak, each name lifting clear and falling back into the talk.`
   ],
   goon:{t:'go on',go:'c11-7'}
 },
@@ -747,16 +835,16 @@ Object.assign(DATA, {
 'c11-6b':{
   p:[
 `The children work the low slabs because the low slabs are their size, and nobody has ever said the other reason out loud in my hearing. Four small ones in a row, August 1927, the water year. One family name between them like one blanket.`,
-`I knelt with the children and we washed. They were easy about it the way children are easy in a cemetery they've grown up visiting, which frightens people from off, and shouldn't. A little Guillory girl, six maybe, put her whole hand flat on the wet slab and told me, matter of business, this one's Th\u00E9oph\u00EDle, he's mine, and went on brushing. Hers to wash, she meant. Or the other. Both fit and I didn't ask, because you don't hand a child a difference she hasn't needed yet.`,
-`The lime dried on my knuckles in little white maps, and the children sang the counting song about the frog, sot crapaud, your tail will burn, take courage, it grows again, and I thought about who taught it to them, and knew the answer, which is nobody and everybody, same as taught me.`
+`I knelt with the children and we washed. They were easy about it the way children are easy in a cemetery they've grown up visiting, which frightens people from off, and shouldn't. A little Guillory girl, six maybe, put her whole hand flat on the wet slab and told me, matter of business, this one's Th\u00E9oph\u00EDle, he's mine, and went on brushing. She meant hers to wash. Maybe she meant more. I kept my grown mouth shut and followed her brush.`,
+`The lime dried on my knuckles in little white maps, and the children sang the counting song about the frog, sot crapaud, your tail will burn, take courage, it grows again, No one had taught it while anybody was looking. It reached them all the same.`
   ],
   goon:{t:'go on',go:'c11-7'}
 },
 
 'c11-6c':{
   p:[
-`I was early enough, and the drum was fresh stirred, and I took the first lime to the far fence, and I want to be careful here, because this is a thing we do and not a thing we discuss.`,
-`A row with no names, from 1931. The stones are river stone, unfaced. Whoever set them set them straight and deep and at night, that much the stones themselves tell you. It is washed first, every Toussaint, before the talk starts, before the drums come down off the truck. Nobody assigns it. You look up some year, in your forties maybe, and understand that whoever gets there first with a bucket simply does it, and that it has never once gone undone, sixty-two years, and that this arithmetic is the closest thing to a headstone those men were ever going to get.`,
+`I was early enough, the drum fresh stirred, and I took the first lime to the far fence. This next thing is done. It is never discussed.`,
+`A row with no names, from 1931. The stones are river stone, unfaced. Whoever set them set them straight and deep and at night, that much the stones themselves tell you. It is washed first, every Toussaint, before the talk starts, before the drums come down off the truck. Nobody assigns it. You look up some year, in your forties maybe, and understand that whoever gets there first with a bucket simply does it, and that it had not once gone undone in sixty-two years. Whitewash could not invent the names. It kept the stones from vanishing.`,
 `I laid the lime on the river stones and said nothing, because there are no names, and you can't say what you weren't given, and the not being given is the whole of what happened, the entire event, still happening, wet under a soft brush on a bright morning.`,
 `When I straightened up, Velma was at the drum watching me. She didn't nod. Nodding would make it a thing. She turned and called some child down off the fence, and the day started.`
   ],
@@ -765,7 +853,7 @@ Object.assign(DATA, {
 
 'c11-7':{
   p:[
-`Noon came on and the work loosened. Folding chairs in the oak shade. Boudin off somebody's tailgate. I sat with my back against a Fontenot tomb old enough to hold no grief for anybody living, and the talk of the old women drifted over from the chairs, and I did what I do now that I live away, I wrote some of it down inside myself.`,
+`Noon came on and the work loosened. Folding chairs in the oak shade. <button class="term" data-term="boudin">Boudin</button> off somebody’s tailgate. I sat with my back against a Fontenot tomb old enough to hold no grief for anybody living, and the talk of the old women drifted over from the chairs, and I did what I do now that I live away, I wrote some of it down inside myself.`,
 {doc:
 `overheard, St. Ambroise, the chairs under the oak:
 
@@ -775,7 +863,7 @@ Object.assign(DATA, {
 
   ...water's been wrong at the landing since
      the levee work, the birds'll tell you,
-     count the poules d'eau, go ahead...
+     count the <button class="term" data-term="poules">poules d'eau</button>, go ahead...
 
   ...seen a man walking the levee by
      On\u00E9zime's, Tuesday gone, and no dog
@@ -786,25 +874,49 @@ Object.assign(DATA, {
   ...could be...
 
   ...pass me that, ch\u00E8re, the little scissors...`},
-`Could be. The two most load-bearing words in this parish. They will hold a roof up, those two. Nobody at those chairs believed the man on the levee was anybody, and nobody believed he was nobody, and no vote was taken, and the scissors got passed.`
+`Could be closes a subject without killing it. The man stayed where they had put him, somewhere between living and dead, while the scissors passed.`
   ],
-  goon:{t:'go on',go:'c11-8'}
+  choices:[
+    {t:'I kept the dream of the clean water.',go:'c11-8',set:{overheard:'dream'}},
+    {t:'I counted the water birds in my head.',go:'c11-8',set:{overheard:'birds'}},
+    {t:'I stayed with the man walking without a dog.',go:'c11-8',set:{overheard:'man'}}
+  ]
 },
 
 'c11-8':{
   p:[
-`Velma sent me to the house after the good tablecloth for the supper, the one in the cedar chest, and this is the part I have not told anybody, and I am only telling you because you have come this far and the dead are listening anyway.`,
-`Under the tablecloth, in the chest, among my mother's kept things, her missal and her fans and the envelope of everybody's hair, there was a fold of wax paper gone soft as cloth. I knew what it was before I knew, the way you do. Inside, a length of white string, knotted. I counted without deciding to. Nine.`,
+    s=>({
+      dream:`The clean water followed me into Velma’s hall, though no water in the Anse was clean that week.`,
+      birds:`At the house I counted three poules d’eau in the ditch and lost the fourth under the hyacinth.`,
+      man:`From Velma’s yard I could see the levee bend. Nothing walked it. No dog watched it either.`
+    }[s.flags.overheard]||null),
+`Velma sent me to the house after the good tablecloth, the one in the cedar chest. I kept what happened there from everybody for thirty-three years.`,
+`Under the tablecloth, among my mother’s missal and fans and the envelope of everybody’s hair, lay wax paper gone soft as cloth. Inside was white string, knotted. My hands stopped before my mind named it. Nine.`,
 `I never saw my mother sick that I wasn't sick beside her. I never heard tell of a summer it would have come from. She kept it forty years minimum, folded like money, under the cloth we eat off of when somebody dies.`,
-{director:'c11'},
-`I put it back the way it was lying. Some things you don't own just because you found them. But my hands were slow closing that chest, and walking back with the tablecloth I held it out in front of me level, both arms, like a full cup, and could not have told you why that carrying felt learned.`
+{director:'c11'}
+  ],
+  choices:[
+    {t:'I folded the paper and put it back exactly.',go:'c11-8a',set:{chest:'folded'}},
+    {t:'I held the string to the window for one breath.',go:'c11-8a',set:{chest:'window'}},
+    {t:'I laid one finger beside the knots without touching them.',go:'c11-8a',set:{chest:'measured'}}
+  ]
+},
+
+'c11-8a':{
+  p:[
+    s=>({
+      folded:`The wax paper remembered its creases. I made each one lie down where it had lain.`,
+      window:`Against the window the string looked clean and ordinary. Nine shadows crossed my palm.`,
+      measured:`My finger was longer than the nine knots. That small fact troubled me more than the string.`
+    }[s.flags.chest]||null),
+`I closed the chest slowly. Walking back, I held the tablecloth level in both arms like a full cup. The carrying had come to my hands from somewhere.`
   ],
   goon:{t:'go on',go:'c11-9'}
 },
 
 'c11-9':{
   p:[
-`Dusk on Toussaint the cemetery lights up. Candles in sand, in jars, on every slab, till the ch\u00E9ni\u00E8re sits up over the dark fields like a town, which one night a year it is, the oldest town anybody's from, population everybody eventually.`,
+`Dusk on Toussaint, candles stood in sand and jars on every slab. The ridge looked settled by people too quiet to show themselves.`,
 `Velma lit for her sisters, one and one and one, her lips going, no sound coming up. All down the rows, people with their matches, and the names being said again, softer now, the whole book read twice in one day.`,
 `I stood with my match struck and going.`,
 `Say the name you came to light for. A whisper does it. It always has.`
@@ -818,9 +930,9 @@ Object.assign(DATA, {
     s=>{
       const n=(s.answers.name||'').trim();
       if(n){
-        return `I said [[name||the name]], and set the light down in the sand, and the name went from me and joined the others the way one voice joins singing that's already going, no seam, no start to it, taken in.`;
+        return `I said [[name||the name]] and set the light in the sand. The flame pinched, straightened, and kept the name.`;
       }
-      return `I set the light down in the sand without saying it, and it went from me anyway, and joined the others the way a voice joins singing that's already going, no seam, taken in.`;
+      return `I set the light in the sand without saying it. The flame pinched, straightened, and gave off its little heat.`;
     },
     s=>s.done&&s.done.c4?
 `On Ophelia Broussard's slab, the one that says GONE TO ASK, a light was already burning, first one lit, and it was there before the first families came up the ridge. Nobody claimed it. Nobody wondered at it out loud. Somebody keeps her, is all, some house down one of these roads, and has for nine years, and if you asked at the chairs whose match that was, the old women would look at you kindly, the way you look at somebody from off, and pass the scissors.`:
@@ -832,9 +944,9 @@ Object.assign(DATA, {
 
 'c11-11':{
   p:[
-`Supper was at Velma's, eleven of us, gumbo she'd had going since before the cemetery, rice in the big pot with the lid that don't fit. Funeral stories, which are the happiest stories we own. The time Fr. Melancon's vestments took fire off the Easter candle and he finished the Mass smoking like a boucherie. The time the Donatto brothers, bearing their own mother, got the casket wedged in the church door and had to back her out and come again, and everybody in the pews saying, that's Odile, she never once come through a door the first try in her life.`,
-`And in the middle of the serving, ladle in her hand, leaning over the rice, Velma said, this pot's older than me, this was Mama's flood pot. And somebody from off, a young wife, asked what a flood pot was, and Velma said, filling her bowl for her, in twenty-seven we cooked out of it on the roof of the corn crib eleven days. Papa had died the March before, so when the water came up in the house Mama had us tie his coffin to the chinaball with plow line so he wouldn't travel, and she sat up on the crib with us and sang, and he rode it out in the yard like a pirogue, and when the water went down we planted mustard greens over the whole flat, because flood ground is rich, ch\u00E8re, richest greens we ever ate. Here, take the crust corner, that's the best of the rice.`,
-`And the young wife took the crust corner, and the table went on, and I watched her face do what faces from off do, the little search for where to put it, and find no drawer, and file it under the only heading we keep here, which is what happened.`
+`Supper was at Velma's, eleven of us, gumbo she'd had going since before the cemetery, rice in the big pot with the lid that don't fit. After the second bowls, the funeral stories started and somebody laughed before the first one was finished. The time Fr. Melancon's vestments took fire off the Easter candle and he finished the Mass smoking like a <button class="term" data-term="boucherie">boucherie</button>. The time the Donatto brothers, bearing their own mother, got the casket wedged in the church door and had to back her out and come again, and everybody in the pews saying, that's Odile, she never once come through a door the first try in her life.`,
+`And in the middle of the serving, ladle in her hand, leaning over the rice, Velma said, this pot's older than me, this was Mama's flood pot. And somebody from off, a young wife, asked what a flood pot was, and Velma said, filling her bowl for her, in twenty-seven we cooked out of it on the roof of the corn crib eleven days. Papa had died the March before, so when the water came up in the house Mama had us tie his coffin to the chinaball with plow line so he wouldn't travel, and she sat up on the crib with us and sang, and he rode it out in the yard like a <button class="term" data-term="pirogue">pirogue</button>, and when the water went down we planted mustard greens over the whole flat, because flood ground is rich, ch\u00E8re, richest greens we ever ate. Here, take the crust corner, that's the best of the rice.`,
+`And the young wife took the crust corner, and the table went on, and the young wife looked once around the table to see whether laughter was allowed. Velma was already filling the next bowl.`
   ],
   goon:{t:'go on',go:'c11-12'}
 },
@@ -842,17 +954,26 @@ Object.assign(DATA, {
 'c11-12':{
   p:[
 `I went out on the back steps late with the dishtowel still over my shoulder. The candles up on the ch\u00E9ni\u00E8re had burned down to a low glow, a town going to bed. The frogs had the dark to themselves.`,
-`Across the water, down toward the bend, a light was moving. Low, unhurried, wrong height for a truck and the wrong color for one, and it went along the levee a while the way a man walks who isn't going anywhere he doesn't know, and then it wasn't there.`,
-`Behind me the screen door, and Velma beside me with her cup. She looked where I was looking, the time it takes to shell one pea, no longer. Gard\u00E9 donc, she said, in the voice you'd use for weather, and went back in to her dishes, and I stood another minute in the frog dark on my own two feet, and here is where I have to leave you, because this is the honest place to stand. I don't know what I watched. I know I wasn't afraid, and I know that not being afraid was something the Anse built in me a long time ago, board by board, the way you build a house high.`
+`Across the water toward the bend, a light moved at a man’s pace. No engine followed it. No lantern bobbed. It went along the levee until the bend took it, or it went out.`,
+`Behind me the screen door, and Velma beside me with her cup. She looked where I was looking for the time it takes to shell one pea. Gard\u00E9 donc, she said, in the voice she used for weather.`
   ],
-  goon:{t:'go on',go:'c11-13'}
+  choices:[
+    {t:'I watched the dark where the light had been.',go:'c11-13',set:{light:'watched'}},
+    {t:'I said Velma’s name before she reached the door.',go:'c11-13',set:{light:'called'}},
+    {t:'I followed her back inside.',go:'c11-13',set:{light:'inside'}}
+  ]
 },
 
 'c11-13':{
   p:[
+    s=>({
+      watched:`I stayed until the dark had no seam in it. Fear never came. The porch boards stayed ordinary under my feet.`,
+      called:`Velma turned with her hand on the screen. I asked what she had seen. She said, your hat is still no good, and went in.`,
+      inside:`Inside, Velma had left my cup by the sink. I washed it while the last candle on the ridge went out.`
+    }[s.flags.light]||null),
 `Morning after Toussaint, we wrapped the brushes in a feed sack, the paddle went back under the church, and the blue drum got its truck hood. All of it stored where it lives, sleeping its year.`,
 `Velma held my face in the doorway again, the second reading. Same time next year, ch\u00E8re, she said. Bring a better hat.`,
-`I drove out the way I came in, past the landing, past the bend, taking the far side of the water without the wheel seeming to move, and through the place on the road where the sweetness starts, syrup out of no mill, and I did what my mother did, and her mother, which is nothing, no slowing, no wondering, just breathing it in while it lasted, and letting the road remember for both of us.`
+`I drove past the landing and the bend. My hands took the far side without asking me. At the sweetness I lowered the window one inch. It was gone by the blacktop.`
   ],
   end:'c11'
 }
@@ -860,7 +981,7 @@ Object.assign(DATA, {
 });
 
 /* ========================= BOOT ========================= */
-window.addEventListener('DOMContentLoaded',()=>{shelf()});
+window.addEventListener('DOMContentLoaded',()=>{buildGlossary();shelf()});
 </script>
 </body>
 </html>
