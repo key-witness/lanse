@@ -2,6 +2,8 @@
 
 Stories from the low places, taken down as they were told.
 
+Live at [lanse-indol.vercel.app](https://lanse-indol.vercel.app).
+
 A dependency-free literary text game with an optional, low-cost narrative
 director. The authored passage graph remains canonical. At two meaningful
 beats, the director selects one authored thematic reflection from a strict

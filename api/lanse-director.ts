@@ -112,7 +112,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       headers: {
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lanse.vercel.app',
+        'HTTP-Referer': 'https://lanse-indol.vercel.app',
         'X-Title': "L'ANSE quiet narrative director",
       },
       body: JSON.stringify({
